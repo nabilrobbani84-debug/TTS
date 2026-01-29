@@ -17,13 +17,19 @@ app.use(bodyParser.json());
 const DATA_DIR = path.join(__dirname, '../data');
 const DATA_FILE = path.join(DATA_DIR, 'puzzles.json');
 
-// Ensure data directory and file exist
+// In-memory fallback for Vercel/Serverless where FS is read-only
+let memoryPuzzles = [];
+const IS_VERCEL = process.env.VERCEL === '1';
+
+// Ensure data directory and file exist (Only works locally or on persistent FS)
 async function ensureData() {
+    if (IS_VERCEL) return;
     try {
         await fs.access(DATA_DIR);
     } catch {
         await fs.mkdir(DATA_DIR, { recursive: true });
     }
+
 
     try {
         await fs.access(DATA_FILE);
@@ -36,8 +42,13 @@ async function ensureData() {
 app.get('/api/puzzles', async (req, res) => {
     try {
         await ensureData();
-        const data = await fs.readFile(DATA_FILE, 'utf-8');
-        const puzzles = JSON.parse(data);
+        let puzzles = [];
+        if (IS_VERCEL) {
+             puzzles = memoryPuzzles;
+        } else {
+             const data = await fs.readFile(DATA_FILE, 'utf-8');
+             puzzles = JSON.parse(data);
+        }
         // Return only summary info for the list to save bandwidth
         const summary = puzzles.map(p => ({
             id: p.id,
@@ -56,8 +67,13 @@ app.get('/api/puzzles', async (req, res) => {
 app.get('/api/puzzles/:id', async (req, res) => {
     try {
         await ensureData();
-        const data = await fs.readFile(DATA_FILE, 'utf-8');
-        const puzzles = JSON.parse(data);
+        let puzzles = [];
+        if (IS_VERCEL) {
+             puzzles = memoryPuzzles;
+        } else {
+             const data = await fs.readFile(DATA_FILE, 'utf-8');
+             puzzles = JSON.parse(data);
+        }
         const puzzle = puzzles.find(p => p.id === req.params.id);
         
         if (!puzzle) {
@@ -90,11 +106,14 @@ app.post('/api/puzzles', async (req, res) => {
             createdAt: new Date().toISOString()
         };
 
-        const data = await fs.readFile(DATA_FILE, 'utf-8');
-        const puzzles = JSON.parse(data);
-        puzzles.push(newPuzzle);
-        
-        await fs.writeFile(DATA_FILE, JSON.stringify(puzzles, null, 2));
+        if (IS_VERCEL) {
+            memoryPuzzles.push(newPuzzle);
+        } else {
+            const data = await fs.readFile(DATA_FILE, 'utf-8');
+            const puzzles = JSON.parse(data);
+            puzzles.push(newPuzzle);
+            await fs.writeFile(DATA_FILE, JSON.stringify(puzzles, null, 2));
+        }
         
         res.status(201).json(newPuzzle);
     } catch (error) {
@@ -103,6 +122,11 @@ app.post('/api/puzzles', async (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
-});
+// For Vercel, we export the app
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => {
+        console.log(`Server running at http://localhost:${PORT}`);
+    });
+}
+
+export default app;

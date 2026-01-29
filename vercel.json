@@ -1,17 +1,30 @@
 {
-  "functions": {
-    "backend/*.php": {
-      "runtime": "vercel-php@0.6.0"
-    }
-  },
-  "rewrites": [
+  "builds": [
     {
-      "source": "/api/:match*",
-      "destination": "/backend/:match*"
+      "src": "backend/*.php",
+      "use": "vercel-php@0.6.0"
     },
     {
-      "source": "/(.*)",
-      "destination": "/frontend/index.html"
+      "src": "frontend/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/backend/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/frontend/$1",
+      "check": true
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/frontend/index.html"
     }
   ]
 }

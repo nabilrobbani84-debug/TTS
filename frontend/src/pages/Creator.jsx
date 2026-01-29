@@ -99,43 +99,53 @@ function CreatorPage() {
             <h2 className="text-xl font-bold text-white">Puzzle Details</h2>
           </div>
           
-          <div className="mb-8">
-            <label className="block text-xs font-bold text-blue-400 uppercase tracking-wider mb-2 ml-1">Title</label>
-            <input 
-              type="text" 
-              className="input-field text-lg md:text-xl font-bold bg-slate-950/80"
-              placeholder="e.g., Science Trivia"
-              value={title}
-              onChange={e => setTitle(e.target.value)}
-            />
+          <div className="mb-8 relative group z-10">
+            <label className="block text-xs font-bold text-blue-400 uppercase tracking-wider mb-2 ml-1">Puzzle Title</label>
+            <div className="relative">
+              <input 
+                type="text" 
+                className="w-full px-5 py-4 bg-slate-900/50 border border-slate-700/50 rounded-xl text-xl font-bold text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 transition-all duration-300 shadow-inner group-hover:bg-slate-900/80"
+                placeholder="e.g., The Solar System"
+                value={title}
+                onChange={e => setTitle(e.target.value)}
+              />
+              <div className="absolute inset-0 rounded-xl bg-blue-500/5 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-500" />
+            </div>
           </div>
 
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <label className="block text-xs font-bold text-indigo-400 uppercase tracking-wider ml-1">Words & Clues</label>
-              <span className="text-xs text-slate-500">{words.length} items</span>
+            <div className="flex items-center justify-between px-1">
+              <label className="block text-xs font-bold text-indigo-400 uppercase tracking-wider">Words & Clues</label>
+              <span className="text-xs font-medium text-slate-500 py-1 px-3 bg-slate-900 rounded-full border border-slate-800">{words.length} items</span>
             </div>
 
-            <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar -mr-2">
+            <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar -mr-2 pb-2">
               {words.map((row, i) => (
-                <div key={i} className="group relative flex flex-col sm:flex-row gap-3 p-3 bg-slate-900/40 border border-white/5 rounded-xl hover:border-blue-500/30 transition-all duration-300">
-                  <span className="absolute -left-2 -top-2 w-5 h-5 flex items-center justify-center bg-slate-800 rounded-full text-[10px] text-slate-400 font-mono shadow-sm border border-slate-700">
+                <div 
+                  key={i} 
+                  className="group relative flex items-start gap-4 p-5 bg-slate-900/40 border border-slate-800/60 rounded-2xl transition-all duration-300 hover:border-blue-500/30 hover:bg-slate-800/40 hover:shadow-lg hover:shadow-black/20 focus-within:border-blue-500/50 focus-within:ring-1 focus-within:ring-blue-500/20 focus-within:bg-slate-800/60 transform hover:-translate-y-0.5"
+                >
+                  <div className="mt-1 w-8 h-8 flex items-center justify-center bg-slate-800/80 rounded-lg text-xs font-bold text-slate-500 border border-slate-700/50 group-hover:border-blue-500/30 group-hover:text-blue-400 transition-colors">
                     {i + 1}
-                  </span>
+                  </div>
                   
-                  <div className="flex-1 space-y-2">
+                  <div className="flex-1 space-y-3">
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder="WORD"
+                        className="w-full bg-transparent text-lg font-bold uppercase tracking-widest text-slate-200 placeholder-slate-700 focus:outline-none transition-colors"
+                        value={row.word}
+                        onChange={e => handleWordChange(i, 'word', e.target.value)}
+                      />
+                      {/* Interactive underline */}
+                      <div className="absolute bottom-0 left-0 w-full h-px bg-slate-700/50 group-focus-within:bg-blue-500/30 transition-colors" />
+                    </div>
+                    
                     <input
                       type="text"
-                      placeholder="WORD"
-                      className="w-full bg-transparent text-sm font-bold uppercase tracking-widest text-slate-200 placeholder-slate-600 focus:outline-none"
-                      value={row.word}
-                      onChange={e => handleWordChange(i, 'word', e.target.value)}
-                    />
-                    <div className="h-px bg-white/5 w-full hidden sm:block"></div>
-                    <input
-                      type="text"
-                      placeholder="Clue..."
-                      className="w-full bg-transparent text-sm text-slate-400 placeholder-slate-600 focus:outline-none focus:text-blue-300"
+                      placeholder="Enter a helpful clue..."
+                      className="w-full bg-transparent text-sm font-medium text-slate-400 placeholder-slate-600 focus:outline-none focus:text-blue-200 transition-colors"
                       value={row.clue}
                       onChange={e => handleWordChange(i, 'clue', e.target.value)}
                     />
@@ -143,8 +153,9 @@ function CreatorPage() {
 
                   <button 
                     onClick={() => removeRow(i)}
-                    className="self-end sm:self-center p-2 text-slate-600 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors opacity-100 sm:opacity-0 group-hover:opacity-100"
+                    className="mt-1 p-2 text-slate-600 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 focus:opacity-100 focus:translate-x-0"
                     disabled={words.length <= 2}
+                    title="Remove word"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -154,9 +165,12 @@ function CreatorPage() {
 
             <button 
               onClick={addRow}
-              className="w-full py-3 border border-dashed border-slate-700/50 rounded-xl text-slate-500 hover:border-blue-500/50 hover:text-blue-400 hover:bg-blue-500/5 transition-all duration-300 flex items-center justify-center gap-2 text-sm font-medium"
+              className="group w-full py-4 border border-dashed border-slate-700 rounded-2xl text-slate-400 font-medium hover:border-blue-500/50 hover:text-blue-400 hover:bg-blue-500/5 transition-all duration-300 flex items-center justify-center gap-2"
             >
-              <Plus className="w-4 h-4" /> <span className="hidden sm:inline">Add Another Word</span><span className="sm:hidden">Add Word</span>
+              <div className="p-1 rounded-md bg-slate-800 group-hover:bg-blue-500/20 transition-colors">
+                <Plus className="w-4 h-4" /> 
+              </div>
+              <span>Add Another Word</span>
             </button>
           </div>
         </div>

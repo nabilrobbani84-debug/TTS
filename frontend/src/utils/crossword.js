@@ -199,3 +199,25 @@ function normalizeGrid({ grid, placedWords }) {
 
   return { width, height, words: shiftedWords, cells: finalGrid };
 }
+
+// ✅ API Configuration
+export const API_URL = "/api"; 
+
+export const savePuzzle = async (data) => {
+  const response = await fetch(`${API_URL}/save.php`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  return response.json();
+};
+
+export const getPuzzle = async (id) => {
+  const response = await fetch(`${API_URL}/get.php?id=${id}`);
+  return response.json();
+};
+
+export const getPuzzleList = async () => {
+    const response = await fetch(`${API_URL}/list.php`);
+    return response.json();
+};

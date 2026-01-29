@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Plus, Trash2, Save, RefreshCw, AlertCircle, Grid, Type, ArrowRight } from 'lucide-react';
-import { generateCrossword } from '../utils/crossword';
+import { generateCrossword, savePuzzle } from '../utils/crossword';
 import { useNavigate } from 'react-router-dom';
 
 function CreatorPage() {
@@ -69,15 +69,16 @@ function CreatorPage() {
         height: generated.height
       };
 
-      const res = await fetch('http://localhost:3000/api/puzzles', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+      const saved = await savePuzzle(payload);
+      // const res = await fetch('http://localhost:3000/api/puzzles', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify(payload)
+      // });
 
-      if (!res.ok) throw new Error('Failed to save');
+      // if (!res.ok) throw new Error('Failed to save');
       
-      const saved = await res.json();
+      // const saved = await res.json();
       navigate(`/play/${saved.id}`);
     } catch (err) {
       setError('Error saving puzzle. Is the server running?');

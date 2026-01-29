@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, CheckCircle, HelpCircle, Trophy, Home, Info, X, Keyboard, MousePointer } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { getPuzzle } from '../utils/crossword';
 
 function PlayerPage() {
   const { id } = useParams();
@@ -17,8 +18,8 @@ function PlayerPage() {
   const [isChecking, setIsChecking] = useState(false);
 
   useEffect(() => {
-    fetch(`http://localhost:3000/api/puzzles/${id}`)
-      .then(res => res.json())
+    getPuzzle(id)
+      // .then(res => res.json())
       .then(data => {
         // Normalize legacy data that might have 'cells' instead of 'grid'
         if (!data.grid && data.cells) {

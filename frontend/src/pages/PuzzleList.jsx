@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Play, Calendar, Grid3X3, ArrowRight, Puzzle } from 'lucide-react';
+import { getPuzzleList } from '../utils/crossword';
 
 function PuzzleList() {
   const [puzzles, setPuzzles] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost:3000/api/puzzles')
-      .then(res => res.json())
+    getPuzzleList()
+      // .then(res => res.json())
       .then(data => {
         setPuzzles(data.reverse()); // Newest first
         setLoading(false);
